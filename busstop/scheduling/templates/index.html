@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Map</title>
+    {{map.header.render|safe}}
+</head>
+<body>
+  <form method="get" target="_blank">
+    {% csrf_token %}
+    <label for="start">Start Station:</label>
+    <select name="start" id="start">
+      {% for stop in unique_stops.keys %}
+      <option value="{{ stop }}">{{ stop }}</option>
+      {% endfor %}
+    </select>
+    <br>
+    <label for="end">End Station:</label>
+    <select name="end" id="end">
+      {% for stop in unique_stops.keys %}
+      <option value="{{ stop }}">{{ stop }}</option>
+      {% endfor %}
+    </select>
+    <br>
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>
+
+<style>
+.vertical-center {
+  height:100%;
+}
+</style>

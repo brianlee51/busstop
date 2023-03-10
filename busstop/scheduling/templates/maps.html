@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_61a98a36d418298e02e277008707592b {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_61a98a36d418298e02e277008707592b" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_61a98a36d418298e02e277008707592b = L.map(
+                "map_61a98a36d418298e02e277008707592b",
+                {
+                    center: [1.4964559999542668, 103.74374661113058],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 13,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_a37b7b7f4a06df105b282d17b673eba9 = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca target=\"_blank\" href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca target=\"_blank\" href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var marker_afdb91eeb859fb7fcdcf83709ef8ea73 = L.marker(
+                [1.4964559999542668, 103.74374661113058],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_7bb3b32c5acd9a404cc81a0af4e4174b = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_afdb91eeb859fb7fcdcf83709ef8ea73.setIcon(icon_7bb3b32c5acd9a404cc81a0af4e4174b);
+        
+    
+        var popup_b0a2171d2f91b2fd80ee5adaf2471a43 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_3ddca14c0cdcc151b3199e0756d33db8 = $(`<div id="html_3ddca14c0cdcc151b3199e0756d33db8" style="width: 100.0%; height: 100.0%;">1-Larkin Terminal</div>`)[0];
+                popup_b0a2171d2f91b2fd80ee5adaf2471a43.setContent(html_3ddca14c0cdcc151b3199e0756d33db8);
+            
+        
+
+        marker_afdb91eeb859fb7fcdcf83709ef8ea73.bindPopup(popup_b0a2171d2f91b2fd80ee5adaf2471a43)
+        ;
+
+        
+    
+    
+            var marker_fecbe75085ddb06e8627ed9d966383f4 = L.marker(
+                [1.491850778809332, 103.74087255093272],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_6bd526645c1cb996bd680121bab9aa85 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_fecbe75085ddb06e8627ed9d966383f4.setIcon(icon_6bd526645c1cb996bd680121bab9aa85);
+        
+    
+        var popup_b3d07089dc3edeff716250923dde4e67 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_683ceb0332d9216db5791a1e5b0721e9 = $(`<div id="html_683ceb0332d9216db5791a1e5b0721e9" style="width: 100.0%; height: 100.0%;">2-Pejabat Daerah Tanah Johor Bahru</div>`)[0];
+                popup_b3d07089dc3edeff716250923dde4e67.setContent(html_683ceb0332d9216db5791a1e5b0721e9);
+            
+        
+
+        marker_fecbe75085ddb06e8627ed9d966383f4.bindPopup(popup_b3d07089dc3edeff716250923dde4e67)
+        ;
+
+        
+    
+    
+            var marker_ec148a1c7f70282eb1ff8d6749971679 = L.marker(
+                [1.4801823177394162, 103.7368168221016],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_8cdd9e0cbe4567cbfe9c478c22323997 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_ec148a1c7f70282eb1ff8d6749971679.setIcon(icon_8cdd9e0cbe4567cbfe9c478c22323997);
+        
+    
+        var popup_07cbf0173390d52e7953a4a548c4f241 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_17957843e6de90b38c9a192694d714dd = $(`<div id="html_17957843e6de90b38c9a192694d714dd" style="width: 100.0%; height: 100.0%;">3-RTM Jabatan Penyiaran Negeri Johor</div>`)[0];
+                popup_07cbf0173390d52e7953a4a548c4f241.setContent(html_17957843e6de90b38c9a192694d714dd);
+            
+        
+
+        marker_ec148a1c7f70282eb1ff8d6749971679.bindPopup(popup_07cbf0173390d52e7953a4a548c4f241)
+        ;
+
+        
+    
+    
+            var marker_ca43c26f6bb05fcb5897d6c002b7bb9e = L.marker(
+                [1.4689940555974177, 103.7368740086021],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_39764d7913fbff5602b34b38725b7e16 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_ca43c26f6bb05fcb5897d6c002b7bb9e.setIcon(icon_39764d7913fbff5602b34b38725b7e16);
+        
+    
+        var popup_3d9a357b9a1df331d03bd2a63916d29a = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_a8b38e670eb8882040b9f9b859ecc683 = $(`<div id="html_a8b38e670eb8882040b9f9b859ecc683" style="width: 100.0%; height: 100.0%;">4-Opp Masjid Kolam Ayer</div>`)[0];
+                popup_3d9a357b9a1df331d03bd2a63916d29a.setContent(html_a8b38e670eb8882040b9f9b859ecc683);
+            
+        
+
+        marker_ca43c26f6bb05fcb5897d6c002b7bb9e.bindPopup(popup_3d9a357b9a1df331d03bd2a63916d29a)
+        ;
+
+        
+    
+    
+            var marker_6f6cda1f6e3cd9c8445630799f819268 = L.marker(
+                [1.4675510557185905, 103.73673088953657],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_887f54df93b643b7f8698daa9629e050 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_6f6cda1f6e3cd9c8445630799f819268.setIcon(icon_887f54df93b643b7f8698daa9629e050);
+        
+    
+        var popup_a1774041e466134e47f418c7a3c4737e = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_56d5e3ad241450186cc3227e079d7dca = $(`<div id="html_56d5e3ad241450186cc3227e079d7dca" style="width: 100.0%; height: 100.0%;">5-Opp Jabatan Pendidikan Johor</div>`)[0];
+                popup_a1774041e466134e47f418c7a3c4737e.setContent(html_56d5e3ad241450186cc3227e079d7dca);
+            
+        
+
+        marker_6f6cda1f6e3cd9c8445630799f819268.bindPopup(popup_a1774041e466134e47f418c7a3c4737e)
+        ;
+
+        
+    
+    
+            var marker_e9491a56e7c6c3bff4e90c26fee98ab0 = L.marker(
+                [1.4627466510403129, 103.73965194475493],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_6c166b3ceb0984280e7b604d13682011 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_e9491a56e7c6c3bff4e90c26fee98ab0.setIcon(icon_6c166b3ceb0984280e7b604d13682011);
+        
+    
+        var popup_01b95b0fa0eb55bda157be10cfb08d6c = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_11aff21297123ef004f5a8a852af3ef6 = $(`<div id="html_11aff21297123ef004f5a8a852af3ef6" style="width: 100.0%; height: 100.0%;">6-Maktab Sultan Abu Bakar (English College</div>`)[0];
+                popup_01b95b0fa0eb55bda157be10cfb08d6c.setContent(html_11aff21297123ef004f5a8a852af3ef6);
+            
+        
+
+        marker_e9491a56e7c6c3bff4e90c26fee98ab0.bindPopup(popup_01b95b0fa0eb55bda157be10cfb08d6c)
+        ;
+
+        
+    
+    
+            var marker_d02bcdb7da562bb47893bed53ab60f10 = L.marker(
+                [1.4575742843315376, 103.74670675307506],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_140b344b17c41e6dfa2c42b4e06f2a5c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_d02bcdb7da562bb47893bed53ab60f10.setIcon(icon_140b344b17c41e6dfa2c42b4e06f2a5c);
+        
+    
+        var popup_1c0dbb786f2fe75ebb44dffc3488ed3e = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_6a5e0ad6e14b6ac6b51ab7d3ddae34dc = $(`<div id="html_6a5e0ad6e14b6ac6b51ab7d3ddae34dc" style="width: 100.0%; height: 100.0%;">7-Hospital Sultanah Aminah</div>`)[0];
+                popup_1c0dbb786f2fe75ebb44dffc3488ed3e.setContent(html_6a5e0ad6e14b6ac6b51ab7d3ddae34dc);
+            
+        
+
+        marker_d02bcdb7da562bb47893bed53ab60f10.bindPopup(popup_1c0dbb786f2fe75ebb44dffc3488ed3e)
+        ;
+
+        
+    
+    
+            var marker_ff1b3760750492b6bd71216f31b53606 = L.marker(
+                [1.456742090233385, 103.74938268472616],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_d085a290de6e9bfcd8257540f08799c2 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_ff1b3760750492b6bd71216f31b53606.setIcon(icon_d085a290de6e9bfcd8257540f08799c2);
+        
+    
+        var popup_cd6fe7211218937a99df3049717f37fe = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_ee10fd381ec47fece4f1079f3d38790a = $(`<div id="html_ee10fd381ec47fece4f1079f3d38790a" style="width: 100.0%; height: 100.0%;">8-Johor Islamic Complex</div>`)[0];
+                popup_cd6fe7211218937a99df3049717f37fe.setContent(html_ee10fd381ec47fece4f1079f3d38790a);
+            
+        
+
+        marker_ff1b3760750492b6bd71216f31b53606.bindPopup(popup_cd6fe7211218937a99df3049717f37fe)
+        ;
+
+        
+    
+    
+            var marker_eb9066b7f8756a3b3bd6abcddc3a5244 = L.marker(
+                [1.4598336266506124, 103.76216068221784],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_65abf3a52722bc63d9e8b46a8b9c1d43 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_eb9066b7f8756a3b3bd6abcddc3a5244.setIcon(icon_65abf3a52722bc63d9e8b46a8b9c1d43);
+        
+    
+        var popup_4058cc70704f3882b9c752471a8beb36 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_ae485e2a27ae55ecd9580b9d8812b5d8 = $(`<div id="html_ae485e2a27ae55ecd9580b9d8812b5d8" style="width: 100.0%; height: 100.0%;">9-Bangunan Sultan Ibrahim</div>`)[0];
+                popup_4058cc70704f3882b9c752471a8beb36.setContent(html_ae485e2a27ae55ecd9580b9d8812b5d8);
+            
+        
+
+        marker_eb9066b7f8756a3b3bd6abcddc3a5244.bindPopup(popup_4058cc70704f3882b9c752471a8beb36)
+        ;
+
+        
+    
+    
+            var marker_6cc09bbd124cd4c3166589d7130b2723 = L.marker(
+                [1.4609620562865593, 103.75782511045665],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_648c67935cb6ab60b37af21f97dc0dea = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_6cc09bbd124cd4c3166589d7130b2723.setIcon(icon_648c67935cb6ab60b37af21f97dc0dea);
+        
+    
+        var popup_f76e3a0184a820910834ab3307bdc401 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_3555b69bb8080d1a884848845304cf9a = $(`<div id="html_3555b69bb8080d1a884848845304cf9a" style="width: 100.0%; height: 100.0%;">10-Wisma Persekutuan</div>`)[0];
+                popup_f76e3a0184a820910834ab3307bdc401.setContent(html_3555b69bb8080d1a884848845304cf9a);
+            
+        
+
+        marker_6cc09bbd124cd4c3166589d7130b2723.bindPopup(popup_f76e3a0184a820910834ab3307bdc401)
+        ;
+
+        
+    
+    
+            var marker_3fdc93044d98998211b7446389c036af = L.marker(
+                [1.4555985388016415, 103.76176881099856],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_95beb4ef19a2d94e1b22f625792771bd = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_3fdc93044d98998211b7446389c036af.setIcon(icon_95beb4ef19a2d94e1b22f625792771bd);
+        
+    
+        var popup_94e57a5b5fa3cf6226f32e23c681498b = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_36209072c6e2170890f0b7dd21b06fa6 = $(`<div id="html_36209072c6e2170890f0b7dd21b06fa6" style="width: 100.0%; height: 100.0%;">11-Majlis Bandaraya Johor Bahru</div>`)[0];
+                popup_94e57a5b5fa3cf6226f32e23c681498b.setContent(html_36209072c6e2170890f0b7dd21b06fa6);
+            
+        
+
+        marker_3fdc93044d98998211b7446389c036af.bindPopup(popup_94e57a5b5fa3cf6226f32e23c681498b)
+        ;
+
+        
+    
+    
+            var marker_307303574124b4b334fa762a1f3b10b1 = L.marker(
+                [1.4635691591027955, 103.76499694129318],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_4519f3f51dfc987617093a6bbb0d1617 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_307303574124b4b334fa762a1f3b10b1.setIcon(icon_4519f3f51dfc987617093a6bbb0d1617);
+        
+    
+        var popup_529fd10510bdd3906171bd8105570106 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_73b0a0fd886a5c46203fb0aeae24dc41 = $(`<div id="html_73b0a0fd886a5c46203fb0aeae24dc41" style="width: 100.0%; height: 100.0%;">12-JB Sentral Terminal</div>`)[0];
+                popup_529fd10510bdd3906171bd8105570106.setContent(html_73b0a0fd886a5c46203fb0aeae24dc41);
+            
+        
+
+        marker_307303574124b4b334fa762a1f3b10b1.bindPopup(popup_529fd10510bdd3906171bd8105570106)
+        ;
+
+        
+    
+    
+            var marker_0a2bd9e5662971032c1067c04f840ecc = L.marker(
+                [1.4622515143439279, 103.77198033612271],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_71dfcba86092ee04b7b16bc6b347310f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_0a2bd9e5662971032c1067c04f840ecc.setIcon(icon_71dfcba86092ee04b7b16bc6b347310f);
+        
+    
+        var popup_818a04536d677f0e0c88fff96cb368d5 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_812acdedd86d94fd67ebbba0e584faf5 = $(`<div id="html_812acdedd86d94fd67ebbba0e584faf5" style="width: 100.0%; height: 100.0%;">13-Menara MSC Cyberport</div>`)[0];
+                popup_818a04536d677f0e0c88fff96cb368d5.setContent(html_812acdedd86d94fd67ebbba0e584faf5);
+            
+        
+
+        marker_0a2bd9e5662971032c1067c04f840ecc.bindPopup(popup_818a04536d677f0e0c88fff96cb368d5)
+        ;
+
+        
+    
+    
+            var marker_cf90abadca7f57869f26ddf1cb1ffe82 = L.marker(
+                [1.4728712972429236, 103.74885185047674],
+                {}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+    
+            var icon_010e614a7d8c908de3c79b91e618235b = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_cf90abadca7f57869f26ddf1cb1ffe82.setIcon(icon_010e614a7d8c908de3c79b91e618235b);
+        
+    
+        var popup_9a87c57334800783b5e39b64cb166234 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_3b1f8c25431e9dd9ec0900247c879394 = $(`<div id="html_3b1f8c25431e9dd9ec0900247c879394" style="width: 100.0%; height: 100.0%;">14-Opp Sekolah Kebangsaan Perempuan Jalan Yahya Awal</div>`)[0];
+                popup_9a87c57334800783b5e39b64cb166234.setContent(html_3b1f8c25431e9dd9ec0900247c879394);
+            
+        
+
+        marker_cf90abadca7f57869f26ddf1cb1ffe82.bindPopup(popup_9a87c57334800783b5e39b64cb166234)
+        ;
+
+        
+    
+    
+            var poly_line_83a4d9341afdb5f0c303849f3af3a52f = L.polyline(
+                [[1.4964559999542668, 103.74374661113058], [1.491850778809332, 103.74087255093272], [1.4801823177394162, 103.7368168221016], [1.4689940555974177, 103.7368740086021], [1.4675510557185905, 103.73673088953657], [1.4627466510403129, 103.73965194475493], [1.4575742843315376, 103.74670675307506], [1.456742090233385, 103.74938268472616], [1.4598336266506124, 103.76216068221784], [1.4609620562865593, 103.75782511045665], [1.4555985388016415, 103.76176881099856], [1.4635691591027955, 103.76499694129318], [1.4622515143439279, 103.77198033612271], [1.4728712972429236, 103.74885185047674]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_61a98a36d418298e02e277008707592b);
+        
+</script>
+</html>
