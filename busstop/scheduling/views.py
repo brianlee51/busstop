@@ -3,8 +3,14 @@ from django.conf import settings
 import csv
 import math
 import folium
-import io
 import os
+
+# TODO: Make start position a red marker, and end position a green marker
+# TODO: Use an API to show the curvature of the route between points
+# TODO: Solve the "opposite" bus stop problem (nearest bus stops around you)
+# TODO: Have a front end to allow user to set start point and end point?
+# TODO: "straight line" distance calcuation is not the same as "road distance"
+# TODO: If there's time make the front end better
 
 # Create your views here.
 def home(request):
@@ -78,19 +84,27 @@ def home(request):
         stop = 1
         for loc in locations:
             if stop == 1:
+                # set starting bus stop point to red marker
                 folium.Marker(
                     location=[loc[1], loc[2]],
                     popup= "{0}-{1}".format(stop, loc[0]),
                     icon=folium.Icon(color='red')
                 ).add_to(m)
+            elif stop == len(locations):
+                # set ending bus stop point to green marker
+                folium.Marker(
+                    location=[loc[1], loc[2]],
+                    popup= "{0}-{1}".format(stop, loc[0]),
+                    icon=folium.Icon(color='green')
+                ).add_to(m)
             else:
+                # set bus stop points to black marker
                 folium.Marker(
                     location=[loc[1], loc[2]],
                     popup= "{0}-{1}".format(stop, loc[0]),
                     icon=folium.Icon(color=route_colours[route])
                 ).add_to(m)
             stop += 1
-
             locations_longlat.append((loc[1], loc[2]))
 
         folium.PolyLine(locations_longlat, color='red').add_to(m)
