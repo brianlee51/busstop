@@ -4,22 +4,100 @@ import csv
 import math
 import folium
 import os
+import requests
+import polyline
 
-# TODO: Make start position a red marker, and end position a green marker
+
+# TODO: Make start position a red marker, and end position a green marker [OK]
 # TODO: Use an API to show the curvature of the route between points
 # TODO: Solve the "opposite" bus stop problem (nearest bus stops around you)
-# TODO: Have a front end to allow user to set start point and end point?
+# TODO: Have a front end to allow user to set start point and end point? [OK]
 # TODO: "straight line" distance calcuation is not the same as "road distance"
 # TODO: If there's time make the front end better
 
 # Create your views here.
+
+# global csv file reader handler
+csv_path = os.path.join(settings.BASE_DIR, 'scheduling', 'bus_stop.csv')
+stops_csv = open(csv_path, 'r')
+reader = csv.DictReader(stops_csv)
+
+bus_stop_name_position_dict = {}
+for row in reader:
+    stop_name = row['name']
+    stop_lon, stop_lat = row['longlat'].split(',')
+    bus_stop_name_position_dict[stop_name] = (float(stop_lat), float(stop_lon))
+
 def home(request):
-    csv_path = os.path.join(settings.BASE_DIR, 'scheduling', 'bus_stop.csv')
-    stops_csv = open(csv_path, 'r')
-    reader = csv.DictReader(stops_csv)
+    if request.method == 'GET':
+        return render(request, 'index.html')
+
+def route(request):
+    start_walking = request.GET.get("start_position")
+    end_walking = request.GET.get("end_position")
+    print(':::: start position: ', start_walking, '::::')
+    print(':::: end position: ', end_walking, '::::')
+    # define the start and end locations in latlng
+    start_lon, start_lat = start_walking.split(',')
+    end_lon, end_lat = end_walking.split(',')
+
+    start_lat = start_lat.strip(' ')
+    start_lon = start_lon.strip(' ')
+    end_lat = end_lat.strip(' ')
+    end_lon = end_lon.strip(' ')
+
+    print('start_lat: ', start_lat)
+    print('start_lon: ', start_lon)
+    print('end_lat: ', end_lat)
+    print('end_lon: ', end_lon)
+
+    #  find 5 closest bus stop nearest to the person
+    nearest_starting_bus_stops = nearest_bus_stops(float(start_lon), float(start_lat), 5)
+    closest_starting_stop = nearest_starting_bus_stops[0]
+    closest_starting_bus_stop_name = closest_starting_stop[1]
+    # have to find the lat, long of the closest stop
+    start_stop_lat, start_stop_lon = bus_stop_name_position_dict.get(closest_starting_bus_stop_name)
+
+    print(start_stop_lat, start_stop_lon)
+    # ::::::::::::::::::::::::::::: OSRM ::::::::::::::::::::::::::::::
+    url = f'https://router.project-osrm.org/route/v1/walking/{start_lat},{start_lon};{start_stop_lat},{start_stop_lon}?overview=full'
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        route = response.json()['routes'][0]
+        distance = route['distance']  # in meters
+        duration = route['duration']  # in seconds
+        geometry = route['geometry']  # polyline string
+        starting_decoded_polyline = polyline.decode(geometry)
+    else:
+        print('Error:', response.reason, response.content)
+
+
+    #  find 5 closest bus stop nearest to the end place
+    nearest_ending_bus_stops = nearest_bus_stops(float(end_lon), float(end_lat), 5)
+    closest_ending_stop = nearest_ending_bus_stops[0]
+    closest_ending_bus_stop_name = closest_ending_stop[1]
+    # have to find the lat, long of the closest stop
+    ending_stop_lat, ending_stop_lon = bus_stop_name_position_dict.get(closest_ending_bus_stop_name)
+
+    print(ending_stop_lat, ending_stop_lon)
+    # ::::::::::::::::::::::::::::: OSRM ::::::::::::::::::::::::::::::
+    url = f'https://router.project-osrm.org/route/v1/walking/{end_lat},{end_lon};{ending_stop_lat},{ending_stop_lon}?overview=full'
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        route = response.json()['routes'][0]
+        distance = route['distance']  # in meters
+        duration = route['duration']  # in seconds
+        geometry = route['geometry']  # polyline string
+        ending_decoded_polyline = polyline.decode(geometry)
+    else:
+        print('Error:', response.reason, response.content)
+
+    # ::::::::::::::::::::::::::::: END OSRM :::::::::::::::::::::::::
     unique_stops = {}
     locations = []
-    locations_longlat = []
+
     routes = {
         'P101-LOOP': [],
         'P102-01': [],
@@ -32,7 +110,6 @@ def home(request):
         'P411-02': [],
         'P403-LOOP': [],
     }
-
     route_colours = {
         'P101-LOOP': 'red',
         'P102-01': 'blue',
@@ -45,14 +122,20 @@ def home(request):
         'P411-02': 'lightgray',
         'P403-LOOP': 'black',
     }
+
     all_route_names = routes.keys()
+
     g = Graph()
+    csv_path = os.path.join(settings.BASE_DIR, 'scheduling', 'bus_stop.csv')
+    stops_csv = open(csv_path, 'r')
+    reader = csv.DictReader(stops_csv)
 
     for row in reader:
         route = row['route']
         stop_id = row['stop_id']
         stop_name = row['name']
         long, lat = row['longlat'].split(',')
+        print(route, stop_id, stop_name, long, lat)
         routes[route].append((stop_id, stop_name, float(long), float(lat)))
 
         # only add new stop
@@ -60,6 +143,7 @@ def home(request):
             unique_stops[stop_name]  = (float(long), float(lat))
             g.add_node(stop_name)
         # to add stops and distances between
+
     for name in all_route_names:
         for stop in range(len(routes.get(name))-1):
             stop1 = routes.get(name)[stop]
@@ -69,50 +153,144 @@ def home(request):
                 stop2[1],
                 haversine(stop1[3], stop1[2], stop2[3], stop2[2])
             )
+    #  Dijkstra's routing
+    shortest_path = g.shortest_path(closest_starting_bus_stop_name, closest_ending_bus_stop_name)
 
-    start = request.GET.get('start')
-    end = request.GET.get('end')
-    if start and end:
-        shortest_path = g.shortest_path(start, end)
+    for p in shortest_path:
+        locations.append((p, float(unique_stops.get(p)[0]), float(unique_stops.get(p)[1])))
+        print(p, 'long:', unique_stops.get(p)[0], 'lat:', unique_stops.get(p)[1])
 
-        for p in shortest_path:
-            locations.append((p, float(unique_stops.get(p)[0]), float(unique_stops.get(p)[1])))
-            print(p, 'long:', unique_stops.get(p)[0], 'lat:', unique_stops.get(p)[1])
+
+    #  :::::::: OSRM API FOR CURVATURE OF ROUTE ::::::::
+    to_encode = [bus_stop_name_position_dict.get(p) for p in shortest_path]
+    journey_polyline = [(long, lat) for lat, long in to_encode]
+    journey_polyline_points_encode = polyline.encode(journey_polyline)
+    url = f'https://router.project-osrm.org/route/v1/driving/polyline({journey_polyline_points_encode})?overview=full'
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        route = response.json()['routes'][0]
+        distance = route['distance']  # in meters
+        duration = route['duration']  # in seconds
+        geometry = route['geometry']  # polyline string
+        journey_polyline_decode = polyline.decode(geometry)
+    else:
+        print('Error:', response.reason, response.content)
+
+    #  :::::::: OSRM API FOR CURVATURE OF ROUTE ::::::::
         
-        m = folium.Map(location=(locations[0][1], locations[0][2]), zoom_start=13)
+    m = folium.Map(location=[start_lon, start_lat],zoom_start=18)
 
-        stop = 1
-        for loc in locations:
-            if stop == 1:
-                # set starting bus stop point to red marker
-                folium.Marker(
-                    location=[loc[1], loc[2]],
-                    popup= "{0}-{1}".format(stop, loc[0]),
-                    icon=folium.Icon(color='red')
-                ).add_to(m)
-            elif stop == len(locations):
-                # set ending bus stop point to green marker
-                folium.Marker(
-                    location=[loc[1], loc[2]],
-                    popup= "{0}-{1}".format(stop, loc[0]),
-                    icon=folium.Icon(color='green')
-                ).add_to(m)
-            else:
-                # set bus stop points to black marker
-                folium.Marker(
-                    location=[loc[1], loc[2]],
-                    popup= "{0}-{1}".format(stop, loc[0]),
-                    icon=folium.Icon(color=route_colours[route])
-                ).add_to(m)
-            stop += 1
-            locations_longlat.append((loc[1], loc[2]))
+    #  :::::::: Draw Polylines ::::::::
+    folium.PolyLine(
+        locations=starting_decoded_polyline,
+        color='blue',
+        weight=5
+    ).add_to(m)
 
-        folium.PolyLine(locations_longlat, color='red').add_to(m)
+    folium.PolyLine(
+        locations=journey_polyline_decode,
+        color='blue',
+        weight=5
+    ).add_to(m)
+    
+    folium.PolyLine(
+        locations=ending_decoded_polyline,
+        color='blue',
+        weight=5
+    ).add_to(m)
 
-        m.save(os.path.join(settings.BASE_DIR, 'scheduling', 'templates', 'maps.html'))
-        if start and end:
-            return render(request, 'maps.html')
-    return render(request, 'index.html', {'unique_stops': unique_stops})
+
+    # :::::::: Draw marker points ::::::::
+    folium.Marker(
+        location=[start_lon, start_lat],
+        icon=folium.Icon(color='red')
+    ).add_to(m)
+
+    folium.Marker(
+        location=[start_stop_lon, start_stop_lat],
+        icon=folium.Icon(color='lightblue')
+    ).add_to(m)
+
+    folium.Marker(
+        location=[end_lon, end_lat],
+        icon=folium.Icon(color='green')
+    ).add_to(m)
+
+    #  plot the dijkstra's routing
+    # set starting bus stop point to red marker
+    start_journey_point = locations[0]
+    folium.Marker(
+        location=[start_journey_point[1], start_journey_point[2]],
+        popup= "{0}-{1}".format(1, start_journey_point[0]),
+        icon=folium.Icon(color='red')
+    ).add_to(m)
+
+    # set ending bus stop point to green marker
+    end_journey_point = locations[-1]
+    folium.Marker(
+        location=[end_journey_point[1], end_journey_point[2]],
+        popup= "{0}-{1}".format(len(locations), end_journey_point[0]),
+        icon=folium.Icon(color='green')
+    ).add_to(m)
+
+    for loc in locations[1:-1]:
+        # set bus stop points to black marker
+        # from the second onwards to the second last
+        folium.Marker(
+            location=[loc[1], loc[2]],
+            popup= f"{loc[0]}",
+            icon=folium.Icon(color='black')
+        ).add_to(m)
+
+    m.save(os.path.join(settings.BASE_DIR, 'scheduling', 'templates', 'maps.html'))
+    return render(request, 'maps.html')
+
+
+def search(request):
+    start_position_query = request.GET.get('start_position')
+    end_position_query = request.GET.get('end_position')
+    print(start_position_query)
+    print(end_position_query)
+
+    stops_dict = {}
+    for k, v in bus_stop_name_position_dict.items():
+        stop_name = k
+        long, lat = v[1], v[0]
+        stops_dict[stop_name] = (long, lat)
+
+    if request.method == 'GET':
+        print("start position query is: ", start_position_query)
+        print("end position query is: ", end_position_query)
+        if start_position_query and end_position_query:
+            start_query_url = f'https://nominatim.openstreetmap.org/search?q={start_position_query}&format=json'
+            end_query_url = f'https://nominatim.openstreetmap.org/search?q={end_position_query}&format=json'
+            start_longlat = requests.get(start_query_url).json()
+            end_longlat = requests.get(end_query_url).json()
+
+            for key in stops_dict.keys():
+                if start_position_query in key:
+                    start_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1]})
+                if end_position_query in key:
+                    end_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1]})
+
+            return render(request, 'index.html', {
+                'start_longlat': start_longlat,
+                'end_longlat': end_longlat,
+            })
+
+
+def nearest_bus_stops(long, lat, n_stops):
+    stops_distance = {}
+    sorted_value_key_pairs = []
+    for k, v in bus_stop_name_position_dict.items():
+        stop_name = k
+        stop_lon, stop_lat = v[1], v[0]
+        distance_between = haversine(lat, long, float(stop_lat), float(stop_lon))
+        stops_distance[stop_name] = distance_between
+        value_key_pairs = ((value, key) for (key,value) in stops_distance.items())
+        sorted_value_key_pairs = sorted(value_key_pairs)
+    return sorted_value_key_pairs[:n_stops]
 
 
 class Graph:
