@@ -3,32 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <title>Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
     {{map.header.render|safe}}
 </head>
 <body>
-  <form method="get" target="_blank">
-    {% csrf_token %}
-    <label for="start">Start Station:</label>
-    <select name="start" id="start">
-      {% for stop in unique_stops.keys %}
-      <option value="{{ stop }}">{{ stop }}</option>
-      {% endfor %}
-    </select>
-    <br>
-    <label for="end">End Station:</label>
-    <select name="end" id="end">
-      {% for stop in unique_stops.keys %}
-      <option value="{{ stop }}">{{ stop }}</option>
-      {% endfor %}
-    </select>
-    <br>
-    <button type="submit">Submit</button>
-  </form>
+    <!-- flexbox grid example -->
+  <div class="container">
+    <div class="columns">
+      <div class="column col-12">
+        <form method="get" action="search/">
+          {% csrf_token %}
+          <div class="input-group my-2">
+            <span class="input-group-addon addon-lg">Start</span>
+            <input type="text" class="form-input input-lg" name="start_position" placeholder="Enter start location" required>
+            <span class="input-group-addon addon-lg">End</span>
+            <input type="text" class="form-input input-lg" name="end_position" placeholder="Enter end location" required>
+            <button class="btn btn-primary btn-lg input-group-btn" type="submit">Search</button>
+          </div>
+        </form>
+
+        <form method="get" target="_blank" action="route/">
+          <div class="form-group">
+            <label class="form-label"><b>Start Location:</b></label>
+            {% if not start_longlat %}
+            <h2>No locations found</h2>
+            {% endif %}
+            {% for loc in start_longlat %}
+            <div class="tile tile-centered">
+                <label class="form-radio">
+                  {% if forloop.first %}
+                    <input type="radio" name="start_position" value="{{ loc.lat }}, {{ loc.lon }}" required checked>
+                  {% else %}
+                    <input type="radio" name="start_position" value="{{ loc.lat }}, {{ loc.lon }}" required>
+                  {% endif %}
+                  <i class="form-icon"></i>
+                </label>
+              <div class="tile-content">
+                <div class="tile-title">{{ loc.display_name }}</div>
+                <small class="tile-subtitle text-gray">LAT: {{ loc.lat }}, LON: {{ loc.lon }}</small>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        
+          <div class="form-group">
+            <label class="form-label"><b>End Location:</b></label>
+            {% if not end_longlat %}
+            <h2>No locations found</h2>
+            {% endif %}
+            {% for loc in end_longlat %}
+            <div class="tile tile-centered">
+              <label class="form-radio">
+                {% if forloop.first %}
+                  <input type="radio" name="end_position" value="{{ loc.lat }}, {{ loc.lon }}" required checked>
+                {% else %}
+                  <input type="radio" name="end_position" value="{{ loc.lat }}, {{ loc.lon }}" required>
+                {% endif %}
+                <i class="form-icon"></i>
+              </label>
+              <div class="tile-content">
+                <div class="tile-title">{{ loc.display_name }}</div>
+                <small class="tile-subtitle text-gray">LAT: {{ loc.lat }}, LON: {{ loc.lon }}</small>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% if end_longlat and start_longlat %}
+          <button class="btn btn-primary my-2" type="submit">Route</button>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
 
 <style>
-.vertical-center {
-  height:100%;
-}
 </style>
