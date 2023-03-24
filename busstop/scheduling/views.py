@@ -184,7 +184,7 @@ def route(request):
     #  :::::::: Draw Polylines ::::::::
     folium.PolyLine(
         locations=starting_decoded_polyline,
-        color='blue',
+        color='red',
         weight=5
     ).add_to(m)
 
@@ -196,7 +196,7 @@ def route(request):
     
     folium.PolyLine(
         locations=ending_decoded_polyline,
-        color='blue',
+        color='green',
         weight=5
     ).add_to(m)
 
@@ -263,8 +263,8 @@ def search(request):
         print("start position query is: ", start_position_query)
         print("end position query is: ", end_position_query)
         if start_position_query and end_position_query:
-            start_query_url = f'https://nominatim.openstreetmap.org/search?q={start_position_query}&format=json'
-            end_query_url = f'https://nominatim.openstreetmap.org/search?q={end_position_query}&format=json'
+            start_query_url = f'https://nominatim.openstreetmap.org/search?q={start_position_query}&format=json&countrycodes=my'
+            end_query_url = f'https://nominatim.openstreetmap.org/search?q={end_position_query}&format=json&countrycodes=my'
             start_longlat = requests.get(start_query_url).json()
             end_longlat = requests.get(end_query_url).json()
 
