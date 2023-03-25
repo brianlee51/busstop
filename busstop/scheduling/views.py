@@ -9,8 +9,9 @@ import polyline
 
 
 # TODO: Make start position a red marker, and end position a green marker [OK]
-# TODO: Use an API to show the curvature of the route between points
+# TODO: Use an API to show the curvature of the route between points [OK]
 # TODO: Solve the "opposite" bus stop problem (nearest bus stops around you)
+# TODO: where to change buses
 # TODO: Have a front end to allow user to set start point and end point? [OK]
 # TODO: "straight line" distance calcuation is not the same as "road distance"
 # TODO: If there's time make the front end better
@@ -23,10 +24,19 @@ stops_csv = open(csv_path, 'r')
 reader = csv.DictReader(stops_csv)
 
 bus_stop_name_position_dict = {}
+
+route_lookup_dict = {}
+
 for row in reader:
     stop_name = row['name']
+    stop_id = row['stop_id']
+    route = row['route']
     stop_lon, stop_lat = row['longlat'].split(',')
     bus_stop_name_position_dict[stop_name] = (float(stop_lat), float(stop_lon))
+    if stop_name in route_lookup_dict.keys():
+        route_lookup_dict[stop_name].append({'stop_id': stop_id, 'route': route})
+    else:
+        route_lookup_dict[stop_name] = [{'stop_id': stop_id, 'route': route}]
 
 def home(request):
     if request.method == 'GET':
@@ -80,7 +90,7 @@ def route(request):
     # have to find the lat, long of the closest stop
     ending_stop_lat, ending_stop_lon = bus_stop_name_position_dict.get(closest_ending_bus_stop_name)
 
-    print(ending_stop_lat, ending_stop_lon)
+    #  print(ending_stop_lat, ending_stop_lon)
     # ::::::::::::::::::::::::::::: OSRM ::::::::::::::::::::::::::::::
     url = f'https://router.project-osrm.org/route/v1/walking/{end_lat},{end_lon};{ending_stop_lat},{ending_stop_lon}?overview=full'
     response = requests.get(url)
@@ -135,7 +145,7 @@ def route(request):
         stop_id = row['stop_id']
         stop_name = row['name']
         long, lat = row['longlat'].split(',')
-        print(route, stop_id, stop_name, long, lat)
+        #  print(route, stop_id, stop_name, long, lat)
         routes[route].append((stop_id, stop_name, float(long), float(lat)))
 
         # only add new stop
@@ -158,7 +168,7 @@ def route(request):
 
     for p in shortest_path:
         locations.append((p, float(unique_stops.get(p)[0]), float(unique_stops.get(p)[1])))
-        print(p, 'long:', unique_stops.get(p)[0], 'lat:', unique_stops.get(p)[1])
+        #  print(p, 'long:', unique_stops.get(p)[0], 'lat:', unique_stops.get(p)[1])
 
 
     #  :::::::: OSRM API FOR CURVATURE OF ROUTE ::::::::
@@ -208,11 +218,6 @@ def route(request):
     ).add_to(m)
 
     folium.Marker(
-        location=[start_stop_lon, start_stop_lat],
-        icon=folium.Icon(color='lightblue')
-    ).add_to(m)
-
-    folium.Marker(
         location=[end_lon, end_lat],
         icon=folium.Icon(color='green')
     ).add_to(m)
@@ -234,14 +239,51 @@ def route(request):
         icon=folium.Icon(color='green')
     ).add_to(m)
 
-    for loc in locations[1:-1]:
-        # set bus stop points to black marker
-        # from the second onwards to the second last
+    #  routes with the most stops get the highest priority
+    bus_priority = {}
+    bus_priority_list = []
+    routing_queue = []
+    route_names = []
+    all_routes_available = []
+    for loc in locations:
+        stop_name = loc[0]
+        long = loc[1]
+        lat = loc[2]
+        route = route_lookup_dict.get(stop_name)
+        for r in route:
+            r['stop_name'] = stop_name
+            r['long'] = long
+            r['lat'] = lat
+        routes_available = [r.get('route') for r in route]
+        all_routes_available.append([r for r in route])
+        for r in routes_available:
+            if r not in bus_priority.keys():
+                bus_priority[r] = 1
+            else:
+                bus_priority[r] += 1
+        bus_priority_list = sorted(bus_priority, key=bus_priority.get, reverse=True)
+
+    for ra in all_routes_available:
+        for r in ra:
+            r['priority'] = bus_priority_list.index(r.get('route'))
+        routing_queue.append(sorted(ra, key=lambda x: x['priority']))
+        # print(ra)
+
+    stop_num = 1
+    for rq in routing_queue:
+        r = rq[0]
+        long = r.get('long')
+        lat = r.get('lat')
+        stop_name = r.get('stop_name')
+        route = r.get('route')
+        icon_color = route_colours.get(route)
         folium.Marker(
-            location=[loc[1], loc[2]],
-            popup= f"{loc[0]}",
-            icon=folium.Icon(color='black')
+            location=[long, lat],
+            popup= f"[{stop_num}]-{route}-{stop_name}",
+            icon=folium.Icon(color=icon_color)
         ).add_to(m)
+        stop_num += 1
+        print(r)
 
     m.save(os.path.join(settings.BASE_DIR, 'scheduling', 'templates', 'maps.html'))
     return render(request, 'maps.html')
