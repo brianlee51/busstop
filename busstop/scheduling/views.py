@@ -11,7 +11,7 @@ import polyline
 # TODO: Make start position a red marker, and end position a green marker [OK]
 # TODO: Use an API to show the curvature of the route between points [OK]
 # TODO: Solve the "opposite" bus stop problem (nearest bus stops around you)
-# TODO: where to change buses
+# TODO: where to change buses [OK]
 # TODO: Have a front end to allow user to set start point and end point? [OK]
 # TODO: "straight line" distance calcuation is not the same as "road distance"
 # TODO: If there's time make the front end better

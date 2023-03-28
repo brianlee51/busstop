@@ -13,7 +13,7 @@
   <div class="container">
     <div class="columns">
       <div class="column col-12">
-        <form method="get" action="search/">
+        <form method="get" action="/search/">
           {% csrf_token %}
           <div class="input-group my-2">
             <span class="input-group-addon addon-lg">Start</span>
@@ -24,7 +24,7 @@
           </div>
         </form>
 
-        <form method="get" target="_blank" action="route/">
+        <form method="get" target="_blank" action="/route/">
           <div class="form-group">
             <label class="form-label"><b>Start Location:</b></label>
             {% if not start_longlat %}
