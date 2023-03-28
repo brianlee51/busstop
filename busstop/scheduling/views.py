@@ -312,9 +312,9 @@ def search(request):
 
             for key in stops_dict.keys():
                 if start_position_query in key:
-                    start_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1]})
+                    start_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1], 'bus_stop': True})
                 if end_position_query in key:
-                    end_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1]})
+                    end_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1], 'bus_stop': True})
 
             return render(request, 'index.html', {
                 'start_longlat': start_longlat,

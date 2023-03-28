@@ -41,7 +41,12 @@
                   <i class="form-icon"></i>
                 </label>
               <div class="tile-content">
-                <div class="tile-title">{{ loc.display_name }}</div>
+                <div class="tile-title">
+                  {{ loc.display_name }}
+                  {% if loc.bus_stop %}
+                  <span class="label label-secondary text-bold">BUS STOP</span>
+                  {% endif %}
+                </div>
                 <small class="tile-subtitle text-gray">LAT: {{ loc.lat }}, LON: {{ loc.lon }}</small>
               </div>
             </div>
@@ -64,7 +69,12 @@
                 <i class="form-icon"></i>
               </label>
               <div class="tile-content">
-                <div class="tile-title">{{ loc.display_name }}</div>
+                <div class="tile-title">
+                  {{ loc.display_name }}
+                  {% if loc.bus_stop %}
+                  <span class="label label-secondary text-bold">BUS STOP</span>
+                  {% endif %}
+                </div>
                 <small class="tile-subtitle text-gray">LAT: {{ loc.lat }}, LON: {{ loc.lon }}</small>
               </div>
             </div>
