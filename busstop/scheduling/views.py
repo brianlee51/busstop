@@ -27,12 +27,17 @@ bus_stop_name_position_dict = {}
 
 route_lookup_dict = {}
 
+routes_list = []
+
 for row in reader:
     stop_name = row['name']
     stop_id = row['stop_id']
     route = row['route']
     stop_lon, stop_lat = row['longlat'].split(',')
     bus_stop_name_position_dict[stop_name] = (float(stop_lat), float(stop_lon))
+
+    routes_list.append(route)
+
     if stop_name in route_lookup_dict.keys():
         route_lookup_dict[stop_name].append({'stop_id': stop_id, 'route': route})
     else:
@@ -40,7 +45,94 @@ for row in reader:
 
 def home(request):
     if request.method == 'GET':
-        return render(request, 'index.html')
+        unique_routes = set(routes_list)
+        return render(request, 'index.html', {'routes': sorted(unique_routes)})
+    
+def view_map(request):
+    if request.method == 'GET':
+        csv_path = os.path.join(settings.BASE_DIR, 'scheduling', 'bus_stop.csv')
+        stops_csv = open(csv_path, 'r')
+        reader = csv.DictReader(stops_csv)
+        filtered_routes = []
+        routes = {
+            'P101-LOOP': [],
+            'P102-01': [],
+            'P102-02': [],
+            'P106-LOOP': [],
+            'P202-LOOP': [],
+            'P211-01': [],
+            'P211-02': [],
+            'P411-01': [],
+            'P411-02': [],
+            'P403-LOOP': [],
+        }
+        route_colours = {
+            'P101-LOOP': 'red',
+            'P102-01': 'blue',
+            'P102-02': 'gray',
+            'P106-LOOP': 'orange',
+            'P202-LOOP': 'green',
+            'P211-01': 'purple',
+            'P211-02': 'pink',
+            'P411-01': 'lightblue',
+            'P411-02': 'lightgray',
+            'P403-LOOP': 'black',
+        }
+        for route in set(routes_list):
+            if request.GET.get(route):
+                filtered_routes.append(route)
+
+        for row in reader:
+            stop_name = row['name']
+            stop_id = row['stop_id']
+            route = row['route']
+            stop_lon, stop_lat = row['longlat'].split(',')
+            if route in filtered_routes:
+                routes[route].append(row)
+
+        # to render routes
+        m = folium.Map(zoom_start=18)
+        for k, v in routes.items():
+            if len(v) > 0:
+                to_encode = []
+                route_colour = route_colours[v[0].get('route')]
+                for stop in v:
+                    stop_name = stop['name']
+                    stop_id = stop['stop_id']
+                    route = stop['route']
+                    lon, lat = stop['longlat'].split(',')
+                    
+                    to_encode.append((float(lat), float(lon)))
+                    folium.Marker(
+                        location=[lon, lat],
+                        popup= "{0}-{1}".format(stop_id, stop_name),
+                        icon=folium.Icon(color=route_colours[route])
+                    ).add_to(m)
+
+                
+                journey_polyline = [(long, lat) for lat, long in to_encode]
+                journey_polyline_points_encode = polyline.encode(journey_polyline)
+                url = f'https://router.project-osrm.org/route/v1/driving/polyline({journey_polyline_points_encode})?overview=full'
+                response = requests.get(url)
+
+                if response.status_code == 200:
+                    route = response.json()['routes'][0]
+                    distance = route['distance']  # in meters
+                    duration = route['duration']  # in seconds
+                    geometry = route['geometry']  # polyline string
+                    journey_polyline_decode = polyline.decode(geometry)
+                    
+                    folium.PolyLine(
+                        locations=journey_polyline_decode,
+                        color=route_colour,
+                        weight=5
+                    ).add_to(m)
+                    print("added polyline")
+                else:
+                    print('Error:', response.reason, response.content)
+        m.fit_bounds(m.get_bounds())
+        m.save(os.path.join(settings.BASE_DIR, 'scheduling', 'templates', 'maps.html'))
+        return render(request, 'maps.html')
 
 def route(request):
     start_walking = request.GET.get("start_position")
@@ -335,6 +427,7 @@ def nearest_bus_stops(long, lat, n_stops):
     return sorted_value_key_pairs[:n_stops]
 
 
+# Directed graph implementation
 class Graph:
     def __init__(self):
         self.nodes = set()
