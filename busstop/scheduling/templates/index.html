@@ -13,7 +13,7 @@
   <div class="container">
     <div class="columns">
       <div class="column col-12">
-        <form method="get" action="search/">
+        <form method="get" action="/search/">
           {% csrf_token %}
           <div class="input-group my-2">
             <span class="input-group-addon addon-lg">Start</span>
@@ -23,8 +23,31 @@
             <button class="btn btn-primary btn-lg input-group-btn" type="submit">Search</button>
           </div>
         </form>
+        <!-- dropdown button group -->
+        <div class="dropdown float-right">
+          <form method="get" action="/nearby/">
+            <div class="btn-group">
+                <button class="btn btn-lg" type="submit">View map</button>
+                <a href="#" class="btn btn-lg dropdown-toggle" tabindex="0">
+                  <i class="icon icon-caret"></i>
+                </a>
 
-        <form method="get" target="_blank" action="route/">
+                <!-- menu component -->
+                <ul class="menu">
+                  {% for r in routes %}
+                  <li class="menu-item">
+                    <label class="form-checkbox">
+                      <input type="checkbox" name="{{ r }}" value="true">
+                      <i class="form-icon"></i> {{ r }}
+                    </label>
+                  </li>
+                  {% endfor %}
+                </ul>
+            </div>
+          </form>
+        </div>
+
+        <form method="get" target="_blank" action="/route/">
           <div class="form-group">
             <label class="form-label"><b>Start Location:</b></label>
             {% if not start_longlat %}
@@ -41,7 +64,12 @@
                   <i class="form-icon"></i>
                 </label>
               <div class="tile-content">
-                <div class="tile-title">{{ loc.display_name }}</div>
+                <div class="tile-title">
+                  <a href="/nearby/" target="_blank">{{ loc.display_name }}</a>
+                  {% if loc.bus_stop %}
+                  <span class="label text-bold">BUS STOP</span>
+                  {% endif %}
+                </div>
                 <small class="tile-subtitle text-gray">LAT: {{ loc.lat }}, LON: {{ loc.lon }}</small>
               </div>
             </div>
@@ -64,7 +92,12 @@
                 <i class="form-icon"></i>
               </label>
               <div class="tile-content">
-                <div class="tile-title">{{ loc.display_name }}</div>
+                <div class="tile-title">
+                  <a href="/map/" target="_blank">{{ loc.display_name }}</a>
+                  {% if loc.bus_stop %}
+                  <span class="label text-bold">BUS STOP</span>
+                  {% endif %}
+                </div>
                 <small class="tile-subtitle text-gray">LAT: {{ loc.lat }}, LON: {{ loc.lon }}</small>
               </div>
             </div>

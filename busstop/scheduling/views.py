@@ -9,8 +9,9 @@ import polyline
 
 
 # TODO: Make start position a red marker, and end position a green marker [OK]
-# TODO: Use an API to show the curvature of the route between points
+# TODO: Use an API to show the curvature of the route between points [OK]
 # TODO: Solve the "opposite" bus stop problem (nearest bus stops around you)
+# TODO: where to change buses [OK]
 # TODO: Have a front end to allow user to set start point and end point? [OK]
 # TODO: "straight line" distance calcuation is not the same as "road distance"
 # TODO: If there's time make the front end better
@@ -23,14 +24,115 @@ stops_csv = open(csv_path, 'r')
 reader = csv.DictReader(stops_csv)
 
 bus_stop_name_position_dict = {}
+
+route_lookup_dict = {}
+
+routes_list = []
+
 for row in reader:
     stop_name = row['name']
+    stop_id = row['stop_id']
+    route = row['route']
     stop_lon, stop_lat = row['longlat'].split(',')
     bus_stop_name_position_dict[stop_name] = (float(stop_lat), float(stop_lon))
 
+    routes_list.append(route)
+
+    if stop_name in route_lookup_dict.keys():
+        route_lookup_dict[stop_name].append({'stop_id': stop_id, 'route': route})
+    else:
+        route_lookup_dict[stop_name] = [{'stop_id': stop_id, 'route': route}]
+
 def home(request):
     if request.method == 'GET':
-        return render(request, 'index.html')
+        unique_routes = set(routes_list)
+        return render(request, 'index.html', {'routes': sorted(unique_routes)})
+    
+def view_map(request):
+    if request.method == 'GET':
+        csv_path = os.path.join(settings.BASE_DIR, 'scheduling', 'bus_stop.csv')
+        stops_csv = open(csv_path, 'r')
+        reader = csv.DictReader(stops_csv)
+        filtered_routes = []
+        routes = {
+            'P101-LOOP': [],
+            'P102-01': [],
+            'P102-02': [],
+            'P106-LOOP': [],
+            'P202-LOOP': [],
+            'P211-01': [],
+            'P211-02': [],
+            'P411-01': [],
+            'P411-02': [],
+            'P403-LOOP': [],
+        }
+        route_colours = {
+            'P101-LOOP': 'red',
+            'P102-01': 'blue',
+            'P102-02': 'gray',
+            'P106-LOOP': 'orange',
+            'P202-LOOP': 'green',
+            'P211-01': 'purple',
+            'P211-02': 'pink',
+            'P411-01': 'lightblue',
+            'P411-02': 'lightgray',
+            'P403-LOOP': 'black',
+        }
+        for route in set(routes_list):
+            if request.GET.get(route):
+                filtered_routes.append(route)
+
+        for row in reader:
+            stop_name = row['name']
+            stop_id = row['stop_id']
+            route = row['route']
+            stop_lon, stop_lat = row['longlat'].split(',')
+            if route in filtered_routes:
+                routes[route].append(row)
+
+        # to render routes
+        m = folium.Map(zoom_start=18)
+        for k, v in routes.items():
+            if len(v) > 0:
+                to_encode = []
+                route_colour = route_colours[v[0].get('route')]
+                for stop in v:
+                    stop_name = stop['name']
+                    stop_id = stop['stop_id']
+                    route = stop['route']
+                    lon, lat = stop['longlat'].split(',')
+                    
+                    to_encode.append((float(lat), float(lon)))
+                    folium.Marker(
+                        location=[lon, lat],
+                        popup= "{0}-{1}".format(stop_id, stop_name),
+                        icon=folium.Icon(color=route_colours[route])
+                    ).add_to(m)
+
+                
+                journey_polyline = [(long, lat) for lat, long in to_encode]
+                journey_polyline_points_encode = polyline.encode(journey_polyline)
+                url = f'https://router.project-osrm.org/route/v1/driving/polyline({journey_polyline_points_encode})?overview=full'
+                response = requests.get(url)
+
+                if response.status_code == 200:
+                    route = response.json()['routes'][0]
+                    distance = route['distance']  # in meters
+                    duration = route['duration']  # in seconds
+                    geometry = route['geometry']  # polyline string
+                    journey_polyline_decode = polyline.decode(geometry)
+                    
+                    folium.PolyLine(
+                        locations=journey_polyline_decode,
+                        color=route_colour,
+                        weight=5
+                    ).add_to(m)
+                    print("added polyline")
+                else:
+                    print('Error:', response.reason, response.content)
+        m.fit_bounds(m.get_bounds())
+        m.save(os.path.join(settings.BASE_DIR, 'scheduling', 'templates', 'maps.html'))
+        return render(request, 'maps.html')
 
 def route(request):
     start_walking = request.GET.get("start_position")
@@ -80,7 +182,7 @@ def route(request):
     # have to find the lat, long of the closest stop
     ending_stop_lat, ending_stop_lon = bus_stop_name_position_dict.get(closest_ending_bus_stop_name)
 
-    print(ending_stop_lat, ending_stop_lon)
+    #  print(ending_stop_lat, ending_stop_lon)
     # ::::::::::::::::::::::::::::: OSRM ::::::::::::::::::::::::::::::
     url = f'https://router.project-osrm.org/route/v1/walking/{end_lat},{end_lon};{ending_stop_lat},{ending_stop_lon}?overview=full'
     response = requests.get(url)
@@ -135,7 +237,7 @@ def route(request):
         stop_id = row['stop_id']
         stop_name = row['name']
         long, lat = row['longlat'].split(',')
-        print(route, stop_id, stop_name, long, lat)
+        #  print(route, stop_id, stop_name, long, lat)
         routes[route].append((stop_id, stop_name, float(long), float(lat)))
 
         # only add new stop
@@ -158,7 +260,7 @@ def route(request):
 
     for p in shortest_path:
         locations.append((p, float(unique_stops.get(p)[0]), float(unique_stops.get(p)[1])))
-        print(p, 'long:', unique_stops.get(p)[0], 'lat:', unique_stops.get(p)[1])
+        #  print(p, 'long:', unique_stops.get(p)[0], 'lat:', unique_stops.get(p)[1])
 
 
     #  :::::::: OSRM API FOR CURVATURE OF ROUTE ::::::::
@@ -184,7 +286,7 @@ def route(request):
     #  :::::::: Draw Polylines ::::::::
     folium.PolyLine(
         locations=starting_decoded_polyline,
-        color='blue',
+        color='red',
         weight=5
     ).add_to(m)
 
@@ -196,7 +298,7 @@ def route(request):
     
     folium.PolyLine(
         locations=ending_decoded_polyline,
-        color='blue',
+        color='green',
         weight=5
     ).add_to(m)
 
@@ -205,11 +307,6 @@ def route(request):
     folium.Marker(
         location=[start_lon, start_lat],
         icon=folium.Icon(color='red')
-    ).add_to(m)
-
-    folium.Marker(
-        location=[start_stop_lon, start_stop_lat],
-        icon=folium.Icon(color='lightblue')
     ).add_to(m)
 
     folium.Marker(
@@ -234,14 +331,51 @@ def route(request):
         icon=folium.Icon(color='green')
     ).add_to(m)
 
-    for loc in locations[1:-1]:
-        # set bus stop points to black marker
-        # from the second onwards to the second last
+    #  routes with the most stops get the highest priority
+    bus_priority = {}
+    bus_priority_list = []
+    routing_queue = []
+    route_names = []
+    all_routes_available = []
+    for loc in locations:
+        stop_name = loc[0]
+        long = loc[1]
+        lat = loc[2]
+        route = route_lookup_dict.get(stop_name)
+        for r in route:
+            r['stop_name'] = stop_name
+            r['long'] = long
+            r['lat'] = lat
+        routes_available = [r.get('route') for r in route]
+        all_routes_available.append([r for r in route])
+        for r in routes_available:
+            if r not in bus_priority.keys():
+                bus_priority[r] = 1
+            else:
+                bus_priority[r] += 1
+        bus_priority_list = sorted(bus_priority, key=bus_priority.get, reverse=True)
+
+    for ra in all_routes_available:
+        for r in ra:
+            r['priority'] = bus_priority_list.index(r.get('route'))
+        routing_queue.append(sorted(ra, key=lambda x: x['priority']))
+        # print(ra)
+
+    stop_num = 1
+    for rq in routing_queue:
+        r = rq[0]
+        long = r.get('long')
+        lat = r.get('lat')
+        stop_name = r.get('stop_name')
+        route = r.get('route')
+        icon_color = route_colours.get(route)
         folium.Marker(
-            location=[loc[1], loc[2]],
-            popup= f"{loc[0]}",
-            icon=folium.Icon(color='black')
+            location=[long, lat],
+            popup= f"[{stop_num}]-{route}-{stop_name}",
+            icon=folium.Icon(color=icon_color)
         ).add_to(m)
+        stop_num += 1
+        print(r)
 
     m.save(os.path.join(settings.BASE_DIR, 'scheduling', 'templates', 'maps.html'))
     return render(request, 'maps.html')
@@ -263,16 +397,16 @@ def search(request):
         print("start position query is: ", start_position_query)
         print("end position query is: ", end_position_query)
         if start_position_query and end_position_query:
-            start_query_url = f'https://nominatim.openstreetmap.org/search?q={start_position_query}&format=json'
-            end_query_url = f'https://nominatim.openstreetmap.org/search?q={end_position_query}&format=json'
+            start_query_url = f'https://nominatim.openstreetmap.org/search?q={start_position_query}&format=json&countrycodes=my'
+            end_query_url = f'https://nominatim.openstreetmap.org/search?q={end_position_query}&format=json&countrycodes=my'
             start_longlat = requests.get(start_query_url).json()
             end_longlat = requests.get(end_query_url).json()
 
             for key in stops_dict.keys():
                 if start_position_query in key:
-                    start_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1]})
+                    start_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1], 'bus_stop': True})
                 if end_position_query in key:
-                    end_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1]})
+                    end_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1], 'bus_stop': True})
 
             return render(request, 'index.html', {
                 'start_longlat': start_longlat,
@@ -293,6 +427,7 @@ def nearest_bus_stops(long, lat, n_stops):
     return sorted_value_key_pairs[:n_stops]
 
 
+# Directed graph implementation
 class Graph:
     def __init__(self):
         self.nodes = set()
