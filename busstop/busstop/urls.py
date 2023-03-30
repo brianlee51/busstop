@@ -21,5 +21,6 @@ urlpatterns = [
     path('', views.home),
     path('search/', views.search),
     path('route/', views.route),
-    path('map/', views.view_map)
+    path('map/', views.view_map),
+    path('nearby/', views.nearby),
 ]

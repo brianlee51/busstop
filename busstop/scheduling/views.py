@@ -48,6 +48,31 @@ def home(request):
         unique_routes = set(routes_list)
         return render(request, 'index.html', {'routes': sorted(unique_routes)})
     
+def nearby(request):
+    if request.method == 'GET':
+        lon = request.GET.get('lon')
+        lat = request.GET.get('lat')
+        location_name = request.GET.get('loc_name')
+        nearest_stops = nearest_bus_stops(float(lat), float(lon), 5)
+        m = folium.Map(zoom_start=18)
+        print('my location is: ', lon, lat)
+        folium.Marker(
+            location=[lat, lon],
+            popup= f"{location_name}",
+            icon=folium.Icon(color='black')
+        ).add_to(m)
+        for s in nearest_stops:
+            stop_name = s[1]
+            stop_lat, stop_lon = bus_stop_name_position_dict[stop_name]
+            folium.Marker(
+                location=[stop_lon, stop_lat],
+                popup= f"{stop_name} is {s[0].__round__(2)} km away",
+                icon=folium.Icon(color='red')
+            ).add_to(m)
+        m.fit_bounds(m.get_bounds())
+        m.save(os.path.join(settings.BASE_DIR, 'scheduling', 'templates', 'maps.html'))
+        return render(request, 'maps.html')
+    
 def view_map(request):
     if request.method == 'GET':
         csv_path = os.path.join(settings.BASE_DIR, 'scheduling', 'bus_stop.csv')
@@ -148,13 +173,14 @@ def route(request):
     end_lat = end_lat.strip(' ')
     end_lon = end_lon.strip(' ')
 
-    print('start_lat: ', start_lat)
-    print('start_lon: ', start_lon)
-    print('end_lat: ', end_lat)
-    print('end_lon: ', end_lon)
+    # print('start_lat: ', start_lat)
+    # print('start_lon: ', start_lon)
+    # print('end_lat: ', end_lat)
+    # print('end_lon: ', end_lon)
 
     #  find 5 closest bus stop nearest to the person
     nearest_starting_bus_stops = nearest_bus_stops(float(start_lon), float(start_lat), 5)
+    print(nearest_starting_bus_stops)
     closest_starting_stop = nearest_starting_bus_stops[0]
     closest_starting_bus_stop_name = closest_starting_stop[1]
     # have to find the lat, long of the closest stop
@@ -264,7 +290,9 @@ def route(request):
 
 
     #  :::::::: OSRM API FOR CURVATURE OF ROUTE ::::::::
+    print("shortest path: ", shortest_path)
     to_encode = [bus_stop_name_position_dict.get(p) for p in shortest_path]
+    print("to encode: ", to_encode)
     journey_polyline = [(long, lat) for lat, long in to_encode]
     journey_polyline_points_encode = polyline.encode(journey_polyline)
     url = f'https://router.project-osrm.org/route/v1/driving/polyline({journey_polyline_points_encode})?overview=full'
@@ -419,9 +447,13 @@ def nearest_bus_stops(long, lat, n_stops):
     sorted_value_key_pairs = []
     for k, v in bus_stop_name_position_dict.items():
         stop_name = k
-        stop_lon, stop_lat = v[1], v[0]
+        stop_lat = v[0]
+        stop_lon = v[1]
+        # print("V LAT is:: ", stop_lat, "V LON is:: ", stop_lon)
+        # print("::: debug ::: ", "user lat long: ", lat, long, "stop lat long: ", stop_lat, stop_lon)
         distance_between = haversine(lat, long, float(stop_lat), float(stop_lon))
         stops_distance[stop_name] = distance_between
+        print(stop_name, ":: distance ::", distance_between)
         value_key_pairs = ((value, key) for (key,value) in stops_distance.items())
         sorted_value_key_pairs = sorted(value_key_pairs)
     return sorted_value_key_pairs[:n_stops]
@@ -483,7 +515,8 @@ class Graph:
 def haversine(lat1, lon1, lat2, lon2):
     # convert decimal degrees to radians
     lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
-
+    # print("latlon1 is: ", lat1, lon1)
+    # print("latlon2 is: ", lat2, lon2)
     # calculate haversine formula
     dlat = lat2 - lat1
     dlon = lon2 - lon1
