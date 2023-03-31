@@ -442,9 +442,11 @@ def search(request):
                 if end_position_query in key:
                     end_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1], 'bus_stop': True})
 
+            unique_routes = set(routes_list)
             return render(request, 'index.html', {
                 'start_longlat': start_longlat,
                 'end_longlat': end_longlat,
+                'routes': sorted(unique_routes),
             })
 
 
