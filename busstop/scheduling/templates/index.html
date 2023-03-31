@@ -25,7 +25,7 @@
         </form>
         <!-- dropdown button group -->
         <div class="dropdown float-right">
-          <form method="get" action="/nearby/">
+          <form method="get" action="/map/">
             <div class="btn-group">
                 <button class="btn btn-lg" type="submit">View map</button>
                 <a href="#" class="btn btn-lg dropdown-toggle" tabindex="0">
@@ -65,7 +65,7 @@
                 </label>
               <div class="tile-content">
                 <div class="tile-title">
-                  <a href="/nearby/" target="_blank">{{ loc.display_name }}</a>
+                  <a href="/nearby/?lon={{loc.lon}}&lat={{loc.lat}}&loc_name={{loc.display_name}}" target="_blank">{{ loc.display_name }}</a>
                   {% if loc.bus_stop %}
                   <span class="label text-bold">BUS STOP</span>
                   {% endif %}
@@ -93,7 +93,7 @@
               </label>
               <div class="tile-content">
                 <div class="tile-title">
-                  <a href="/map/" target="_blank">{{ loc.display_name }}</a>
+                  <a href="/nearby/?lon={{loc.lon}}&lat={{loc.lat}}&loc_name={{loc.display_name}}" target="_blank">{{ loc.display_name }}</a>
                   {% if loc.bus_stop %}
                   <span class="label text-bold">BUS STOP</span>
                   {% endif %}
