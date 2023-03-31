@@ -186,6 +186,9 @@ def route(request):
     # have to find the lat, long of the closest stop
     start_stop_lat, start_stop_lon = bus_stop_name_position_dict.get(closest_starting_bus_stop_name)
 
+    starting_walking_distance = None
+    ending_walking_distance = None
+
     print(start_stop_lat, start_stop_lon)
     # ::::::::::::::::::::::::::::: OSRM ::::::::::::::::::::::::::::::
     url = f'https://router.project-osrm.org/route/v1/walking/{start_lat},{start_lon};{start_stop_lat},{start_stop_lon}?overview=full'
@@ -193,8 +196,8 @@ def route(request):
 
     if response.status_code == 200:
         route = response.json()['routes'][0]
-        distance = route['distance']  # in meters
-        duration = route['duration']  # in seconds
+        starting_walking_distance = route['distance']  # in meters
+        starting_walking_duration = route['duration'] / 60 # in mins
         geometry = route['geometry']  # polyline string
         starting_decoded_polyline = polyline.decode(geometry)
     else:
@@ -215,8 +218,8 @@ def route(request):
 
     if response.status_code == 200:
         route = response.json()['routes'][0]
-        distance = route['distance']  # in meters
-        duration = route['duration']  # in seconds
+        ending_walking_distance = route['distance']  # in meters
+        ending_walking_duration = route['duration'] / 60 # in mins
         geometry = route['geometry']  # polyline string
         ending_decoded_polyline = polyline.decode(geometry)
     else:
@@ -332,18 +335,21 @@ def route(request):
 
 
     # :::::::: Draw marker points ::::::::
+    # set starting bus stop point to red marker
     folium.Marker(
         location=[start_lon, start_lat],
+        popup=f"Walk {starting_walking_distance} meters",
         icon=folium.Icon(color='red')
     ).add_to(m)
 
+    # set ending point to green marker
     folium.Marker(
         location=[end_lon, end_lat],
+        popup=f"Walk {ending_walking_distance} meters",
         icon=folium.Icon(color='green')
     ).add_to(m)
 
     #  plot the dijkstra's routing
-    # set starting bus stop point to red marker
     start_journey_point = locations[0]
     folium.Marker(
         location=[start_journey_point[1], start_journey_point[2]],
@@ -436,9 +442,11 @@ def search(request):
                 if end_position_query in key:
                     end_longlat.append({'display_name': key, 'lat': stops_dict[key][0], 'lon': stops_dict[key][1], 'bus_stop': True})
 
+            unique_routes = set(routes_list)
             return render(request, 'index.html', {
                 'start_longlat': start_longlat,
                 'end_longlat': end_longlat,
+                'routes': sorted(unique_routes),
             })
 
 
